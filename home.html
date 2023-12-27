@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chat-m-Chat</title>
+    <style>
+      *,
+      ::after,
+      ::before {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      .logo {
+        text-align: center;
+      }
+      .logo img {
+        margin: 10px auto;
+        border-radius: 10px;
+        border: 2px solid black;
+        height: 60px;
+        width: 80px;
+      }
+
+      .chat-cant {
+        position: relative;
+        margin: 10px auto;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px black;
+        min-height: 90vh;
+        width: 65%;
+        max-width: 900px;
+        background-color: rgb(64, 110, 110);
+
+        overflow: visible;
+        /* overflow-x: hidden;
+        overflow-y: auto; */
+      }
+
+      .chat-cant div {
+        margin: 8px;
+        padding: 5px 10px;
+        color: wheat;
+        border-radius: 10px;
+      }
+      .chat-cant div span{
+        font-family: sans-serif;
+        color: yellow;
+        text-decoration: underline;
+      }
+      .left {
+        box-shadow: 0 0 5px black;
+        background-color: rgb(57, 57, 119);
+        clear: both;
+        float: left;
+      }
+      .right {
+        box-shadow: 0 0 5px black;
+        background-color: rgb(57, 57, 119);
+        clear: both;
+        float: right;
+      }
+      .center {
+        clear: both;
+        text-align: center;
+        font-family: cursive, sans-serif;
+        background-color: rgba(81, 23, 95, 0.58);
+      }
+
+      .message-inp {
+        position: absolute;
+        bottom: 10px;
+        display: flex;
+        gap: 10px;
+        width: 95%;
+        max-width: 900px;
+        justify-content: center
+      }
+
+      .message-inp input {
+        text-align: center;
+        line-height: 1.4rem;
+        font-size: 1.3rem;
+        border-radius: 10px;
+        width: 75%;
+
+        outline: none;
+        border: 1px solid black;
+      }
+      .message-inp button {
+        border-radius: 10px;
+        padding: 7px 15px;
+        font-size: 20px;
+        font-weight: 700;
+        cursor: pointer;
+      }
+
+      .message-inp button:hover {
+        background-color: rgb(121, 212, 136);
+      }
+    </style>
+
+    
+  </head>
+  <body>
+    <!-- <div class="logo">
+      <img src="/view/logo3.png" alt="" />
+    </div> -->
+    <div class="chat-cant">
+      <div class="left">left1</div>
+      <div class="right">right2</div>
+      <div class="center">center</div>
+      <div class="left">right3</div>
+      <div class="right">right4</div>
+      
+
+      <form class="message-inp">
+        <input type="text" id="message" />
+        <button type="submit">send</button>
+      </form>
+    </div>
+
+
+
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      const socket = io();
+      const box = document.querySelector('.chat-cant');
+      const form = document.querySelector('.message-inp');
+      let input = document.querySelector('#message');
+
+      let name = prompt('Enter your name to join the chat..');
+      socket.emit('new-user' , name);
+
+      socket.on('new-joiny' , name => {
+        push(model(name , `joined the chat` , `center`));
+      })
+      socket.on('receive' , ({name , message}) => {
+        push(model(name , `${message}` , `left`));
+      })
+      socket.on('disconnected' , ({name}) => {
+        push(model(name ,`left the chat` , `center`));
+      })
+
+
+      form.addEventListener('submit' , (e) => {
+        e.preventDefault();
+        push(model("you" , `${input.value}` , `right`));
+        socket.emit('send' , input.value);
+        input.value = "";
+      })
+
+      const model = (name , message , position) => `<div class='${position}'> <span>${name? name:"oldone"}</span> : ${message}</div>`;
+      const push = (DIV) => box.innerHTML += DIV;
+    </script>
+  </body>
+</html>
